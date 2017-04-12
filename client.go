@@ -34,6 +34,14 @@ type proxy struct {
 	Status  bool
 }
 
+func createFile(path string) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		file, err := os.Create(path)
+		checkError(err)
+		defer file.Close()
+	}
+}
+
 func (g *getWithproxy) getproxy() {
 	httpProxy := fmt.Sprintf("https://%s", g.proxy)
 	str := strings.Split(g.proxy, ":")
@@ -84,6 +92,7 @@ func main() {
 	)
 
 	flag.Parse()
+	createFile(*fileIn)
 
 	for {
 		content, _ := ioutil.ReadFile(*fileIn)

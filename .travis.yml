@@ -1,0 +1,39 @@
+env:
+  global:
+  - CGO_ENABLED=0
+  - REPO=d1ablorus/proxycheck-client
+language: go
+go:
+- tip
+
+install:
+- go get github.com/a-h/round
+- go get github.com/oschwald/geoip2-golang
+- go get github.com/parnurzeal/gorequest
+
+services:
+- docker
+
+script:
+- go build -o ./proxycheck-client -ldflags '-s' .
+- if [ -n "$TRAVIS_TAG" ]; then
+  docker build -t $REPO .;
+  docker tag $REPO:latest $REPO:$TRAVIS_TAG;
+  docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  docker push $REPO;
+  docker push $REPO:$TRAVIS_TAG;
+  docker rmi -f $REPO $REPO:$TRAVIS_TAG;
+  fi
+
+before_deploy:
+- export FILE_TO_UPLOAD=$(ls ./proxycheck-client)
+
+deploy:
+  provider: releases
+  api_key:
+    secure: R9OhYaPutmQlFcUqQRR09tu59xwHV1S+XuSpBc1WvBe6PHs27WoXj86JJWcfwUgz7w5DVau++CvpdPwf0wsh/WS7Zqco8j+aTQ0lEQLdcYhddCfcgci5w7P7lQj05O1T1UeekFFFYCZb1NpohXDheWJPuYxYV7b0edfwoZMWO1Ob5Y7yPN853sU1KXD4hKdUxQhD4WK8woWp28fkuJgDNoWR5C8JHimYI3ot/Fz/GyvafHSfQt4ODMcyUhDtIKBETJTrmnSQSmVTxxFgHRh5q29wssK4e1zzEJy/XsGral+umLBsZznqQ9Un2EKlYk6EER6osvmrC+OiHCEgdeO2TEHJ9PrnoBZ38pKQcrUceq61Bq/ZGpnvKMpx2XHykf5bZdnHov8Zd8Ws5b1N4cVFvRpRnhXKaBX5ctG2/pergtk1iJ2nQu6WWh06zryrZmXI79otSrn8VbP+2CNI2qjHT+65qQT8/xvF7M6hsU8Ir42GXG80e9SGAh2WPlgjwm2qY31BaI73dwT4OltTQOX2YALXdx8tj9SOgiJjf4+kJ7A+PbnnBMav5TIW3ckr4A26lfn+vaJ9D+Wq7wWD/TxpfB+xGwtqvLnZVMBfxAAw6qVHItzuMP8N8vE4p98K8Yy71IXs6w0nDAyVDgFGts0KYmnIu4gF/bmXW2dApVKzNzw=
+  file: ${FILE_TO_UPLOAD}
+  skip_cleanup: true
+  on:
+    repo: D1abloRUS/proxycheck-client
+    tags: true

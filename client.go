@@ -79,7 +79,7 @@ func main() {
 	var (
 		url       = flag.String("url", "https://m.vk.com", "")
 		fileIn    = flag.String("in", "proxylist.txt", "full path to proxy file")
-		serverURL = flag.String("serverurl", "", "API url")
+		serverURL = flag.String("apiurl", "", "API url")
 		treds     = flag.Int("treds", 50, "number of treds")
 	)
 
